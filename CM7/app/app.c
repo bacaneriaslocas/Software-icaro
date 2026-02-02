@@ -1,4 +1,5 @@
 #include "utilities.h"
+#include "sensor_interrupts.h"
 #include <stdint.h>
 #include "core_cm7.h"
 
@@ -70,6 +71,19 @@ int main(void) {
     uint32_t tim = micros();
     uint32_t intervalo = tim - tiempo;
     tiempo = tim;
+
+    if(icm_flag){
+      icm_flag = false;
+      // Procesar interrupcion del ICM42688P
+          icm_accel_t ac = icm_read_acc();
+          icm_gy_t gy = icm_read_gy();
+    }
+    if (lps_flag) {
+        lps_flag = false;
+        // Procesar interrupcion del LPS22HBTR
+        float pressure = lps_read_pressure();
+    }
+
 /*
     icm_accel_t ac = icm_read_acc();
     icm_gy_t gy = icm_read_gy();

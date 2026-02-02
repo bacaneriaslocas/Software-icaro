@@ -18,6 +18,7 @@ extern "C" {
 /* Includes ------------------------------------------------------------------*/
 #include "stm32h7xx_hal.h"
 #include "main.h"
+#include <stdbool.h>
 
 /* Global interrupt flags ====================================================*/
 extern volatile bool icm_flag;      // ICM42688P interrupt triggered

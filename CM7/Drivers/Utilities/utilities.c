@@ -1,4 +1,5 @@
 #include "utilities.h"
+#include "stm32h7xx_hal_gpio.h"
 
 extern void SystemClock_Config(void);
 
@@ -132,12 +133,12 @@ void GPIO_Init(void){
 
   __HAL_RCC_SYSCFG_CLK_ENABLE();
 
-  GPIO_InitStruct.Pin = GPIO_PIN_6;
+  GPIO_InitStruct.Pin = GPIO_PIN_6 | GPIO_PIN_5;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(GPIOI, &GPIO_InitStruct);  // Pin de interrupcion del ICM42688P
+  HAL_GPIO_Init(GPIOI, &GPIO_InitStruct);  // Pin de interrupcion del ICM42688P | LPS22HB
 
-    HAL_NVIC_SetPriority(EXTI9_5_IRQn, 5, 0);
+  HAL_NVIC_SetPriority(EXTI9_5_IRQn, 5, 0);
 
 }
 float getDinamicPressure(void){
@@ -271,17 +272,4 @@ void mat3_transfer(float A[3][3], float C[3][3]) {
       C[i][j] = A [i][j];
     }
   }
-}
-
-void EXTI9_5_IRQHandler(void)
-{
-    HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_6);
-}
-void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
-{
-    if (GPIO_Pin == GPIO_PIN_6)
-    {
-      icm_accel_t ac = icm_read_acc();
-      icm_gy_t gy = icm_read_gy();
-    }
 }

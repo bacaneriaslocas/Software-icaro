@@ -14,13 +14,12 @@
 #include "utilities.h"
 #include "interrupts_config.h"
 
-/* Private variables ---------------------------------------------------------*/
-static volatile uint32_t sensor_interrupt_flags = 0;
-
 /* Sensor interrupt flags */
 volatile bool icm_flag = false;      // ICM42688P interrupt flag
 volatile bool bmi_flag = false;      // BMI088 interrupt flag
 volatile bool vl53_flag = false;     // VL53L1X interrupt flag
+volatile bool lps_flag = false;      // LPS22HBTR interrupt flag
+volatile bool mmc_flag = false;      // MMC5983MA interrupt flag
 
 /* Private function prototypes -----------------------------------------------*/
 static void icm42688p_interrupt_handler(void);

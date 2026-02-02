@@ -24,11 +24,20 @@ bool  lps_init(SPI_HandleTypeDef *spi, GPIO_TypeDef *CS_port, uint16_t CS_pin)
     lps_write_reg(CTRL_REG2, 0b00011000);
     lps_write_reg(CTRL_REG3, 0b00000100);
 
+    // INTERRUPT_CFG: Configure threshold interrupt
+    // Bit 0 (PH_E) = 1: Enable pressure high interrupt
+    lps_write_reg(INTERRUPT_CFG, 0b00000001);
+    
+    // Set pressure threshold (optional)
+    // THS_P_H/L for threshold value
+    lps_write_reg(THS_P_H, 0xFF);
+    lps_write_reg(THS_P_L, 0xFF);
+
     return whoami == 0xB1;
 
 }
 
-float lps_read_pressure(void){
+float lps_read_pressure(void){  // retorna hPa
 
     // 2) Lee 3 bytes: PRESS_OUT_XL(0x28), _L(0x29), _H(0x2A) con auto-increment
     uint8_t tx[4] = { (uint8_t)(0x80 | 0x28), 0, 0, 0 }; // 0x80=read, 0x28=PRESS_OUT_XL
