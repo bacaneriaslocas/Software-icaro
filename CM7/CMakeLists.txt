@@ -54,6 +54,7 @@ enable_language(C ASM)
 # Add include paths
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     Drivers/Utilities
+    Drivers/Interrupts
     Drivers/vl53l1x
     Drivers/lps22hb
     Drivers/icm42688p
@@ -67,6 +68,7 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     app/app.c
     Drivers/Utilities/utilities.c
+    Drivers/Interrupts/sensor_interrupts.c
     Drivers/vl53l1x/VL53L1X_api.c
     Drivers/vl53l1x/vl53l1_platform.c
     Drivers/lps22hb/lps22hb.c
