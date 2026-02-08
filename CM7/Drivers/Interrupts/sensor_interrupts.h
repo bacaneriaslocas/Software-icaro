@@ -22,7 +22,8 @@ extern "C" {
 
 /* Global interrupt flags ====================================================*/
 extern volatile bool icm_flag;      // ICM42688P interrupt triggered
-extern volatile bool bmi_flag;      // BMI088 interrupt triggered
+extern volatile bool bmigy_flag;    // BMI088_GY interrupt triggered
+extern volatile bool bmiacc_flag;   // BMI088_ACC interrupt triggered
 extern volatile bool lps_flag;      // LPS22HB interrupt triggered
 extern volatile bool mmc_flag;      // MMC5983MA interrupt triggered
 extern volatile bool vl53_flag;     // VL53L1X interrupt triggered

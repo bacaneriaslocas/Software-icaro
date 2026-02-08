@@ -133,12 +133,24 @@ void GPIO_Init(void){
 
   __HAL_RCC_SYSCFG_CLK_ENABLE();
 
-  GPIO_InitStruct.Pin = GPIO_PIN_6 | GPIO_PIN_5;
+  __HAL_RCC_GPIOE_CLK_ENABLE();
+  GPIO_InitStruct.Pin = GPIO_PIN_0;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(GPIOI, &GPIO_InitStruct);  // Pin de interrupcion del ICM42688P | LPS22HB
+  HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);  // BMI088 ACC INT1 (PE0)
+
+  GPIO_InitStruct.Pin = GPIO_PIN_6 | GPIO_PIN_5 | GPIO_PIN_4;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOI, &GPIO_InitStruct);  // ICM42688P | LPS22HB | BMI088 GY (PI4)
 
   HAL_NVIC_SetPriority(EXTI9_5_IRQn, 5, 0);
+  HAL_NVIC_SetPriority(EXTI4_IRQn, 5, 0);
+  HAL_NVIC_SetPriority(EXTI0_IRQn, 5, 0);
+
+  HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
+  HAL_NVIC_EnableIRQ(EXTI4_IRQn);
+  HAL_NVIC_EnableIRQ(EXTI0_IRQn);
 
 }
 float getDinamicPressure(void){
@@ -239,7 +251,7 @@ void sys_init(bool vervosity) {
   led_test();
 
   HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);  // iniciamos la interrupcion del icm42688p
-
+  HAL_NVIC_EnableIRQ(EXTI4_IRQn);
 
 
 }

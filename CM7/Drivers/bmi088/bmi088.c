@@ -90,29 +90,40 @@ bool bmi_init(SPI_HandleTypeDef *spi, GPIO_TypeDef *ACC_CS_port, uint16_t ACC_CS
     gyid = bmigy_read_reg(GYRO_CHIP_ID);
 
     acc_softreset();
-    
+    HAL_Delay(50);
+
     //  configuracion acelerometro
     bmiacc_write_reg(ACC_PWR_CONF, 0x00); // ACC_PWR_CONF (modo activo)
     bmiacc_write_reg(ACC_PWR_CTRL, 0x04); // ACC_PWR_CTRL (enable accel)
-
-    HAL_Delay(1);
+    HAL_Delay(5);
 
     bmiacc_write_reg(ACC_CONF,0b10101100);     // 1600hz
-    bmiacc_write_reg(ACC_RANGE,0b00000010);    // +-12 g
-    bmiacc_write_reg(INT1_IO_CTRL,0b00001010);
-    bmiacc_write_reg(INT2_IO_CTRL,0b00001010);
-    bmiacc_write_reg(INT_MAP_DATA,0b01000000);
+    bmiacc_write_reg(ACC_RANGE, 0b00000010);   // +-12 g
+    HAL_Delay(1);
+
+    // ACC interrupts: map data-ready to INT1 (INT1 -> PE0)
+    // Note: values assume BMI088 default mapping (INT1_DRDY bit = 1)
+    bmiacc_write_reg(INT1_IO_CTRL,0b00001010); // push-pull, active high, output enabled
+    bmiacc_write_reg(INT2_IO_CTRL,0b00000000); // disable INT2
+    bmiacc_write_reg(INT_MAP_DATA, 0b00000100); // DRDY -> INT1
+    HAL_Delay(1);
 
     gyr_softreset();
+    HAL_Delay(50);
     //  configuracion giroscopio
     bmigy_write_reg(GYRO_RANGE,0b00000001);          // 1000 dps
+    HAL_Delay(1);
     bmigy_write_reg(GYRO_BANDWIDTH,0b00000001);      // 2000hz
-    bmigy_write_reg(GYRO_INT_CTRL,0b10000000);
-    bmigy_write_reg(INT3_INT4_IO_CONF,0b00000101);
-    bmigy_write_reg(INT3_INT4_IO_MAP,0b00000001);
+
+    // GY interrupts: data-ready on INT3 (INT3 -> PI4)
+    bmigy_write_reg(GYRO_INT_CTRL, 0b10000000); // enable data-ready interrupt
+    HAL_Delay(1);
+    bmigy_write_reg(INT3_INT4_IO_CONF,0b00000001);   // open drain, active high,
+    HAL_Delay(1);
+    bmigy_write_reg(INT3_INT4_IO_MAP,0b00000001);    // DRDY -> INT3
 
 
-    return accid == 0x1E & gyid == 0x0F;
+    return (accid == 0x1E) && (gyid == 0x0F);
 }
 
 

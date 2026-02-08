@@ -83,11 +83,15 @@ int main(void) {
         // Procesar interrupcion del LPS22HBTR
         float pressure = lps_read_pressure();
     }
-    if (bmi_flag) {
-        bmi_flag = false;
-        // Procesar interrupcion del BMI088
-        bmi_accel_t ac = bmi_read_acc();
+    if (bmigy_flag) {
+        bmigy_flag = false;
+        // Procesar interrupcion del BMI088 GYRO
         bmi_gy_t gy = bmi_read_gy();
+    }
+    if (bmiacc_flag) {
+        bmiacc_flag = false;
+        // Procesar interrupcion del BMI088 ACC
+        bmi_accel_t ac = bmi_read_acc();
     }
 
 /*
