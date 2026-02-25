@@ -22,19 +22,20 @@ bool mmc_init(SPI_HandleTypeDef *spi, GPIO_TypeDef *CS_port, uint16_t CS_pin)
 
     HAL_Delay(3);
 
-    reg = MMC_REG_CTRL0;                           // configuramos el registro 0 de control
-    valor = 0b00100100;
 
+    reg = MMC_REG_CTRL0;
+    valor = 0b00101100;
     mmc_write_reg(reg, valor);
 
-    reg = MMC_REG_CTRL1;                           // configuramos el registro 1 de control
-    valor = 0b00000001;
+    HAL_Delay(3);
 
+    reg = MMC_REG_CTRL1;
+    valor = 0b00000011; 
     mmc_write_reg(reg, valor);
 
-    reg = MMC_REG_CTRL2;                           // configuramos el registro 2 de control
-    valor = 0b11001110;
-
+  
+    reg = MMC_REG_CTRL2;
+    valor = 0b10111101;  
     mmc_write_reg(reg, valor);
 
     return whoami == 0x30;  // devolvemos la id del dispositivo ¡¡  cuidado con valores como 0x00 o 0xFF  !!
@@ -58,7 +59,12 @@ mmc5983_axes_t mmc5983_read_xyz(void){
     data.y = ((int32_t)rawData.y - MMC5983_ZERO) * MMC5983_LSB_uT;
     data.z = ((int32_t)rawData.z - MMC5983_ZERO) * MMC5983_LSB_uT;
 
+    uint8_t reg = MMC_REG_ID;
+    uint8_t valor = 0x00;
 
+    reg = MMC_REG_STATUS;
+    valor = 0b00000011;  
+    mmc_write_reg(reg, valor);  // limpiamos el flag para que vuelva a saltar la interrupcion
 
     return data;
 

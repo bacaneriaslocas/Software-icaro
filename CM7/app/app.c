@@ -15,8 +15,7 @@ uint32_t micros(void){
     return (uint32_t)(DWT->CYCCNT / (SystemCoreClock / 1000000U));
 }
 
-int main(void) {
-  sys_init(1);
+int main(void) {  sys_init(1);
 
     // Habilita TRC (Trace) para poder usar CYCCNT
     CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
@@ -92,6 +91,9 @@ int main(void) {
         bmiacc_flag = false;
         // Procesar interrupcion del BMI088 ACC
         bmi_accel_t ac = bmi_read_acc();
+    }
+    if (HAL_GPIO_ReadPin(GPIOE, GPIO_PIN_1)) {
+      mmc5983_read_xyz();
     }
 
 /*
