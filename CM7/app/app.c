@@ -15,7 +15,9 @@ uint32_t micros(void){
     return (uint32_t)(DWT->CYCCNT / (SystemCoreClock / 1000000U));
 }
 
-int main(void) {  sys_init(1);
+int main(void) {
+
+    sys_init(1);
 
     // Habilita TRC (Trace) para poder usar CYCCNT
     CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
@@ -77,6 +79,9 @@ int main(void) {  sys_init(1);
           icm_accel_t ac = icm_read_acc();
           icm_gy_t gy = icm_read_gy();
     }
+    uint32_t tim2 = micros();
+    
+
     if (lps_flag) {
         lps_flag = false;
         // Procesar interrupcion del LPS22HBTR
@@ -93,8 +98,31 @@ int main(void) {  sys_init(1);
         bmi_accel_t ac = bmi_read_acc();
     }
     if (HAL_GPIO_ReadPin(GPIOE, GPIO_PIN_1)) {
-      mmc5983_read_xyz();
+      mmc5983_axes_t mg_axes = mmc5983_read_xyz();
     }
+
+    if (HAL_GPIO_ReadPin(GPIOF, GPIO_PIN_10)) { // sensor laser 1
+      uint16_t distance;
+      VL53L1X_ERROR status;
+
+      // Leer la distancia
+      status = VL53L1X_GetDistance(0x54, &distance);
+
+      // Limpiar el flag de interrupción
+      VL53L1X_ClearInterrupt(0x54);
+    }
+    if (HAL_GPIO_ReadPin(GPIOF, GPIO_PIN_4)) { // sensor laser 2
+      uint16_t distance;
+      VL53L1X_ERROR status;
+
+      // Leer la distancia
+      status = VL53L1X_GetDistance(0x52, &distance);
+
+      // Limpiar el flag de interrupción
+      VL53L1X_ClearInterrupt(0x52);
+    }
+
+
 
 /*
     icm_accel_t ac = icm_read_acc();

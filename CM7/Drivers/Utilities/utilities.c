@@ -142,7 +142,26 @@ void GPIO_Init(void){
   GPIO_InitStruct.Pin = GPIO_PIN_6 | GPIO_PIN_5 | GPIO_PIN_4;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(GPIOI, &GPIO_InitStruct);  // ICM42688P | LPS22HB | BMI088 GY (PI4)
+  HAL_GPIO_Init(GPIOI,
+                &GPIO_InitStruct); // ICM42688P | LPS22HB | BMI088 GY (PI4)
+
+  GPIO_InitStruct.Pin = GPIO_PIN_4 | GPIO_PIN_10;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(
+      GPIOF, &GPIO_InitStruct); // VXL53L1X_1 INT (PF10) | VXL53L1X_2 INT (PF4)
+
+  GPIO_InitStruct.Pin = GPIO_PIN_5;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOF, &GPIO_InitStruct); // Pin de reset del VL53L1X_2 (PF5)
+
+  GPIO_InitStruct.Pin = GPIO_PIN_0;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);  // Pin de reset del VL53L1X_1 (PC0)
 
   HAL_NVIC_SetPriority(EXTI9_5_IRQn, 5, 0);
   HAL_NVIC_SetPriority(EXTI4_IRQn, 5, 0);
@@ -198,16 +217,49 @@ void sys_init(bool vervosity) {
 
   HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);
 
-  /*
- if (VL53L1__Init() != 0)
-  {
-    sprintf(msg, "** Error en la inicializacion del VL53L1_1 \r\n");
-    uart_print(msg);
+  HAL_GPIO_WritePin(GPIOF, GPIO_PIN_5, GPIO_PIN_RESET); // reiniciamos sensores laser
+  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_0, GPIO_PIN_RESET);
+
+  HAL_Delay(10);
+
+  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_0, GPIO_PIN_SET);  // iniciamos el primer sensor laser para su configuracion
+  
+  if (VL53L1__Init(0x52) != 0)
+   {
+     sprintf(msg, "** Error en la inicializacion del VL53L1_1 \r\n");
+     uart_print(msg);
   } else {
-    sprintf(msg, "** VL53L1_1 inicializado correctamente \r\n");
-    uart_print(msg);
-  }*/
-  VL53L1X_StartRanging(VL53L1__ADDR); // comenzamos las mediciones continuas
+ 
+     // Configura la polaridad de la interrupción (1 = activa alta, 0 = activa baja)
+     VL53L1X_SetInterruptPolarity(0x52, 1);
+ 
+     // Inicia el modo de medición continua
+     VL53L1X_StartRanging(0x52);
+
+     VL53L1X_SetI2CAddress(0x52, 0x54); // Cambiamos la direccion del primer sensor para poder operar con dos sensores iguales
+       
+     sprintf(msg, "** VL53L1_1 inicializado correctamente \r\n");
+     uart_print(msg);
+  }
+
+  HAL_GPIO_WritePin(GPIOF, GPIO_PIN_5, GPIO_PIN_SET);  // iniciamos el segundo sensor laser para su configuracion
+ 
+  if (VL53L1__Init(0x52) != 0)
+   {
+     sprintf(msg, "** Error en la inicializacion del VL53L1_2 \r\n");
+     uart_print(msg);
+  } else {
+ 
+     // Configura la polaridad de la interrupción (1 = activa alta, 0 = activa baja)
+     VL53L1X_SetInterruptPolarity(0x52, 1);
+ 
+     // Inicia el modo de medición continua
+     VL53L1X_StartRanging(0x52);
+       
+     sprintf(msg, "** VL53L1_2 inicializado correctamente \r\n");
+     uart_print(msg);
+  }
+
 
   if(lps_init(&hspi2 ,GPIOE , GPIO_PIN_4)){
     sprintf(msg, "** LPS22HB inicializado correctamente \r\n" );
