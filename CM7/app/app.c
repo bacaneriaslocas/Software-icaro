@@ -3,6 +3,9 @@
 #include <stdint.h>
 #include "core_cm7.h"
 
+#define SEND_MG_READINGS 0
+#define SEND_ICM_READINGS 0
+
 void SystemClock_Config(void);
 
 as5600_t enc;
@@ -76,12 +79,17 @@ int main(void) {
     if(icm_flag){
       icm_flag = false;
       // Procesar interrupcion del ICM42688P
-          icm_accel_t ac = icm_read_acc();
-          icm_gy_t gy = icm_read_gy();
+      icm_accel_t ac = icm_read_acc();
+      icm_gy_t gy = icm_read_gy();
+
+      #if SEND_ICM_READINGS
+          uint8_t msg[100];
+          sprintf(msg, "%.2f\t%.2f\t%.2f\r\n", ac.x, ac.y, ac.z);
+          uart_print(msg);
+      #endif
     }
     uint32_t tim2 = micros();
     
-
     if (lps_flag) {
         lps_flag = false;
         // Procesar interrupcion del LPS22HBTR
@@ -98,9 +106,17 @@ int main(void) {
         bmi_accel_t ac = bmi_read_acc();
     }
     if (HAL_GPIO_ReadPin(GPIOE, GPIO_PIN_1)) {
-      mmc5983_axes_t mg_axes = mmc5983_read_xyz();
-    }
 
+      mmc5983_axes_t mg_axes = mmc5983_read_xyz();
+
+      #if SEND_MG_READINGS
+          uint8_t msg[100];
+          sprintf(msg, "%.2f\t%.2f\t%.2f\r\n", mg_axes.x, mg_axes.y, mg_axes.z);
+          uart_print(msg);
+      #endif
+      
+    }
+/*
     if (HAL_GPIO_ReadPin(GPIOF, GPIO_PIN_10)) { // sensor laser 1
       uint16_t distance;
       VL53L1X_ERROR status;
@@ -120,7 +136,7 @@ int main(void) {
 
       // Limpiar el flag de interrupción
       VL53L1X_ClearInterrupt(0x52);
-    }
+    }*/
 
 
 

@@ -51,7 +51,7 @@ void Buzzer_on(uint32_t freq_hz){
 }
 void Buzzer_off(void) { HAL_TIM_PWM_Stop(&htim17, TIM_CHANNEL_1); }
 void uart_print(const char* s) { // control basico por UART
-    HAL_UART_Transmit(&huart5, (uint8_t*)s, (uint16_t)strlen(s), HAL_MAX_DELAY);
+    CDC_Transmit_FS((uint8_t*)s, (uint16_t)strlen(s));
 }
 void GPIO_Init(void){
 
@@ -215,13 +215,17 @@ void sys_init(bool vervosity) {
   MX_SPI2_Init();
   MX_ADC2_Init();
 
+  MX_USB_DEVICE_Init();
+
   HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);
 
   HAL_GPIO_WritePin(GPIOF, GPIO_PIN_5, GPIO_PIN_RESET); // reiniciamos sensores laser
   HAL_GPIO_WritePin(GPIOC, GPIO_PIN_0, GPIO_PIN_RESET);
 
-  HAL_Delay(10);
+  HAL_Delay(2000);
 
+
+/*
   HAL_GPIO_WritePin(GPIOC, GPIO_PIN_0, GPIO_PIN_SET);  // iniciamos el primer sensor laser para su configuracion
   
   if (VL53L1__Init(0x52) != 0)
@@ -259,7 +263,7 @@ void sys_init(bool vervosity) {
      sprintf(msg, "** VL53L1_2 inicializado correctamente \r\n");
      uart_print(msg);
   }
-
+*/
 
   if(lps_init(&hspi2 ,GPIOE , GPIO_PIN_4)){
     sprintf(msg, "** LPS22HB inicializado correctamente \r\n" );

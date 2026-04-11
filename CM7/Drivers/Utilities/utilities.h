@@ -24,6 +24,8 @@
 #include <stdbool.h>
 #include <stdio.h>
 
+#include "usb_device.h"
+
 #include "shared.h"
 
 #define RAW_TO_VOLTAGE 0.00005012588f // 3.3V/65535

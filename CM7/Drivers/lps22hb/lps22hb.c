@@ -20,8 +20,12 @@ bool  lps_init(SPI_HandleTypeDef *spi, GPIO_TypeDef *CS_port, uint16_t CS_pin)
 
     whoami = lps_read_reg(reg);
 
+    lps_write_reg(CTRL_REG2, 0b00000100);  // reset del sensor
+
+    HAL_Delay(10);
+
     lps_write_reg(CTRL_REG1, 0b01010010);   // configuracion del sensor
-    lps_write_reg(CTRL_REG2, 0b00011000);
+    lps_write_reg(CTRL_REG2, 0b00011010);
     lps_write_reg(CTRL_REG3, 0b00000100);
 
     // INTERRUPT_CFG: Configure threshold interrupt
@@ -33,7 +37,8 @@ bool  lps_init(SPI_HandleTypeDef *spi, GPIO_TypeDef *CS_port, uint16_t CS_pin)
     lps_write_reg(THS_P_H, 0xFF);
     lps_write_reg(THS_P_L, 0xFF);
 
-    return whoami == 0xB1;
+    return whoami == 0xB3; // LPS22HBTR's WHO_AM_I should return 0xB1
+                           // LPS22HHTR's WHO_AM_I should return 0xB3
 
 }
 
